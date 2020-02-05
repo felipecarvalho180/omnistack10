@@ -1,15 +1,21 @@
 const { Router } = require('express');
-const axios = require('axios');
+const DevController = require('./controllers/DevController');
+const SearchController = require('./controllers/SearchController');
+
+//controller deverá ter no máximo 5 funções
+//index = get de lista
+//show = get de um unico item
+//store = post
+//update = atualizar
+//destroy = deletar
 
 const routes = Router();
 
-routes.post('/devs', async (request, response) => {
-  const { github_username } = request.body;
+//Devs
+routes.get('/devs', DevController.index);
+routes.post('/devs', DevController.store);
 
-  const res = await
-    axios.get(`https://api.github.com/users/${ github_username }`);
-    console.log(res.data);
-  return response.json(res.data);
-});
+//Search
+routes.get('/search', SearchController.index);
 
 module.exports = routes;
