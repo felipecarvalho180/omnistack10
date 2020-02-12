@@ -1,9 +1,58 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import styled, { css } from 'styled-components';
+import devsService from '../../services/devs/devs.service';
 
-const Side = () => {
+const Side = ({
+  updateDevs
+}) => {
+  const [ github_username, setGithubUserName ] = useState('');
+  const [ techs, setTechs ] = useState('');
+  const [ latitude, setLatitude ] = useState('');
+  const [ longitude, setLongitude ] = useState('');
+
+  useEffect(() => {
+    getCurrentPosition();
+  }, [ ]);
+
+  const getCurrentPosition = () => {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+
+        setLatitude(latitude);
+        setLongitude(longitude);
+      }, error => {
+        console.log(error);
+      }, {
+        timeout: 30000,
+      }
+    );
+  };
+
+  const handleAddDev = async event => {
+    event.preventDefault();
+
+    let result;
+    try {
+      result = await devsService.createDev({
+        github_username,
+        techs,
+        latitude,
+        longitude,
+      });
+    } catch (error) {
+      console.error(error);
+      return;
+    } 
+
+    setGithubUserName('');
+    setTechs('');
+
+    updateDevs(result);
+  }
+
   return(
     <Wrapper>
       <Title>Cadastrar</Title>
@@ -15,6 +64,8 @@ const Side = () => {
           <Input
             name='github_username'
             id='github_username'
+            value={ github_username }
+            onChange={ e => setGithubUserName(e.target.value) }
             required
           />
         </InputWrapper>
@@ -26,6 +77,8 @@ const Side = () => {
           <Input
             name='techs'
             id='techs'
+            value={ techs }
+            onChange={ e => setTechs(e.target.value) }
             required
           />
         </InputWrapper>
@@ -38,6 +91,9 @@ const Side = () => {
             <Input
               name='latitude'
               id='latitude'
+              type='number'
+              value={ latitude }
+              onChange={ e => setLatitude(e.target.value) }
               required
             />
           </InputWrapper>
@@ -49,12 +105,17 @@ const Side = () => {
             <Input
               name='longitude'
               id='longitude'
+              type='number'
+              value={ longitude }
+              onChange={ e => setLongitude(e.target.value) }
               required
             />
           </InputWrapper>
         </InlineWrapper>
 
-        <SaveButton>Salvar</SaveButton>
+        <SaveButton onClick={ handleAddDev }>
+          Salvar
+        </SaveButton>
       </FormWrapper>
     </Wrapper>
   );
