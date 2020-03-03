@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { requestPermissionsAsync, getCurrentPositionAsync } from 'expo-location';
+import SearchBar from './search-bar/SearchBar';
 
 function Main() {
   const navigation = useNavigation();
@@ -45,7 +46,9 @@ function Main() {
               source={{ uri: 'https://avatars2.githubusercontent.com/u/37779345?s=460&v=4' }}
             />
             <Callout onPress={ () => {
-              navigation.navigate('Profile', { name: 'Felipe' })
+              navigation.navigate('Profile', { 
+                github_username: 'felipecarvalho180'
+              });
             } }>
               <CalloutWrapper>
                 <DevName>Felipe Carvalho</DevName>
@@ -60,6 +63,7 @@ function Main() {
           </Marker>
         </Map>
       ) }
+      <SearchBar />
     </Wrapper>
   );
 };
