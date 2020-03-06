@@ -5,11 +5,13 @@ import { useNavigation } from '@react-navigation/native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { requestPermissionsAsync, getCurrentPositionAsync } from 'expo-location';
 import SearchBar from './search-bar/SearchBar';
+import devsService from '../../services/devs/devs.service';
 
 function Main() {
   const navigation = useNavigation();
 
   const [ currentRegion, setCurrentRegion ] = useState(null);
+  const [ devs, setDevs ] = useState([ ]);
 
   useEffect(() => {
     loadCurrentPosition();
@@ -34,36 +36,67 @@ function Main() {
     }
   };
 
+  const handleRegionChanged = region => {
+    setCurrentRegion(region);
+  };
+
+  const loadDevs = async ({ techs }) => {
+    const { latitude, longitude } = currentRegion;
+    
+    let result;
+    try {
+      result = await devsService.get({
+        longitude,
+        latitude,
+        techs,
+      });
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+    
+    setDevs(result);
+  }
+
   return (
     <Wrapper>
       { currentRegion && (
-        <Map initialRegion={ currentRegion } >
-          <Marker coordinate={{ 
-            latitude: -22.5405551, 
-            longitude: -43.2017871 
-          }}>
-            <MarkerImage 
-              source={{ uri: 'https://avatars2.githubusercontent.com/u/37779345?s=460&v=4' }}
-            />
-            <Callout onPress={ () => {
-              navigation.navigate('Profile', { 
-                github_username: 'felipecarvalho180'
-              });
-            } }>
-              <CalloutWrapper>
-                <DevName>Felipe Carvalho</DevName>
-                <DevBio>
-                  Desenvolvedor Junior na empresa Cogoli, fascinado por React e React Native.
-                </DevBio>
-                <DevTechs>
-                  React.JS, React Native, Node.JS 
-                </DevTechs>
-              </CalloutWrapper>
-            </Callout>
-          </Marker>
+        <Map
+          onRegionChangeComplete={ handleRegionChanged } 
+          initialRegion={ currentRegion } 
+        >
+          { devs.map(d => (
+            <Marker
+              key={ d.devId } 
+              coordinate={{ 
+                latitude: d.location.latitude, 
+                longitude: d.location.longitude 
+              }}
+            >
+              <MarkerImage 
+                resizeMode='contain'
+                source={{ uri: d.avatar_url }}
+              />
+              <Callout onPress={ () => {
+                navigation.navigate('Profile', { 
+                  github_username: d.github_username
+                });
+              } }>
+                <CalloutWrapper>
+                  <DevName>{ d.name }</DevName>
+                  <DevBio>{ d.bio }</DevBio>
+                  <DevTechs>{ d.techs.map(t => t) }</DevTechs>
+                </CalloutWrapper>
+              </Callout>
+            </Marker>
+          )) }
         </Map>
       ) }
-      <SearchBar />
+      <SearchBar 
+        onClick={ value => {
+          loadDevs({ techs: value });
+        } }
+      />
     </Wrapper>
   );
 };
@@ -83,7 +116,7 @@ const Map = styled(MapView)`
 const MarkerImage = styled.Image`
   width: 54px;
   height: 54px;
-  border-radius: 4px;
+  border-radius: 20px;
   border-width: 4px;
   border-color: #FFF;
 `;

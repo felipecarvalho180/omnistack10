@@ -1,18 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components/native';
-import { Keyboard, Alert, Dimensions } from 'react-native';
+import { Keyboard, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 
 // import { Container } from './styles';
 
-export default function SearchBar() {
+export default function SearchBar({
+  onClick,
+}) {
   let keyboardDidShow;
   let keyboardDidHide;
 
   const [ keyboardStatus, setKeyboardStatus ] = useState(false);
   const [ keyboardHeight, setKeyboardHeight] = useState(0);
+  const [ searchString, setSearchString ] = useState('');
 
   useEffect(() => {
     keyboardDidShow = Keyboard.addListener(
@@ -36,15 +39,20 @@ export default function SearchBar() {
 
   const handleKeyboardHide = () => {
     setKeyboardStatus(false);
-  }
+  };
 
   return (
     <Wrapper 
       keyboardHeight={ keyboardHeight }
       keyboardStatus={ keyboardStatus } 
     >
-      <TechsInput />
-      <SearchButton>
+      <TechsInput 
+        value={ searchString }
+        onChangeText={ value => setSearchString(value) }
+      />
+      <SearchButton onPress={ 
+        () => onClick(searchString) 
+      }>
         <SearchButtonIcon />
       </SearchButton>
     </Wrapper>
