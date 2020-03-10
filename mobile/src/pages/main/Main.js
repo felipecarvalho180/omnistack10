@@ -73,10 +73,12 @@ function Main() {
                 longitude: d.location.longitude 
               }}
             >
-              <MarkerImage 
-                resizeMode='contain'
-                source={{ uri: d.avatar_url }}
-              />
+              <Box>
+                <MarkerImage 
+                  resizeMode='contain'
+                  source={{ uri: d.avatar_url }}
+                />
+              </Box>
               <Callout onPress={ () => {
                 navigation.navigate('Profile', { 
                   github_username: d.github_username
@@ -113,12 +115,19 @@ const Map = styled(MapView)`
   height: 100%;
 `;
 
-const MarkerImage = styled.Image`
-  width: 54px;
-  height: 54px;
-  border-radius: 20px;
+const Box = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  padding: 1px;
   border-width: 4px;
-  border-color: #FFF;
+  justify-content: center;
+`;
+
+const MarkerImage = styled.ImageBackground`
+  width: 100%;
+  height: 100%;
+  align-self: center;
 `;
 
 const CalloutWrapper = styled.View`
